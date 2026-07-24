@@ -272,6 +272,15 @@ svg { width: 21px; height: 21px; stroke-width: 1.8; }
 .clinical-form-panel form { margin-top: 28px; }
 .clinical-form-aside { position: sticky; top: 98px; padding: 26px; }
 .clinical-form-aside h2 { margin: 18px 0 8px; }
+.medicine-list, .repeatable-exercises { display: grid; gap: 12px; margin-bottom: 12px; }
+.medicine-row, .repeatable-exercise-row { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(110px, .7fr) minmax(100px, .6fr) auto; gap: 10px; align-items: end; padding: 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 10px; }
+.medicine-row > div { min-width: 0; }
+.medicine-row label, .repeatable-exercise-row label { display: block; margin-bottom: 5px; color: var(--muted); font-size: .66rem; font-weight: 800; }
+.medicine-row .medicine-remove { align-self: end; }
+.repeatable-exercise-row { grid-template-columns: minmax(0, 1fr) auto; }
+.repeatable-exercise-row > select { grid-column: 1; }
+.repeatable-exercise-row > label { grid-column: 1; grid-row: 1; }
+.repeatable-exercise-row > .danger { grid-column: 2; grid-row: 2; }
 .patient-clinical-header { display: grid; grid-template-columns: auto 1fr minmax(310px, .7fr); gap: 22px; align-items: center; margin-bottom: 18px; padding: 28px; background: linear-gradient(120deg, #edf7f2, #fff); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
 .patient-clinical-header h2 { margin: 9px 0 8px; }
 .clinical-contact { display: flex; flex-wrap: wrap; gap: 12px; }

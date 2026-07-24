@@ -441,15 +441,45 @@ class DoctorPrescriptionForm(DoctorPatientFormMixin, StyledFormMixin, forms.Mode
         model = Prescription
         fields = ("patient", "diagnosis", "medicines", "instructions", "issued_on")
         widgets = {
-            "medicines": forms.Textarea(
-                attrs={
-                    "rows": 5,
-                    "placeholder": "One medicine or recommendation per line",
-                }
-            ),
+            # Medicine rows are collected by the prescription form UI and
+            # serialised into this field in clean().  Keep the stored value in
+            # the existing, PDF-friendly one-line-per-medicine format.
+            "medicines": forms.HiddenInput(),
             "instructions": forms.Textarea(attrs={"rows": 4}),
             "issued_on": forms.DateInput(attrs={"type": "date"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Keep compatibility with existing API/form submissions that send the
+        # plain medicines field directly.
+        self.fields["medicines"].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        names = self.data.getlist("medicine_name")
+        times_per_day = self.data.getlist("medicine_times_per_day")
+        durations = self.data.getlist("medicine_duration_days")
+        medicine_lines = []
+
+        for index, raw_name in enumerate(names):
+            name = raw_name.strip()
+            if not name:
+                continue
+            times = (times_per_day[index] if index < len(times_per_day) else "").strip()
+            duration = (durations[index] if index < len(durations) else "").strip()
+            details = []
+            if times:
+                details.append(f"{times} time(s) daily")
+            if duration:
+                details.append(f"for {duration} day(s)")
+            medicine_lines.append(f"{name} — {', '.join(details)}" if details else name)
+
+        if medicine_lines:
+            cleaned_data["medicines"] = "\n".join(medicine_lines)
+        elif not (cleaned_data.get("medicines") or "").strip():
+            self.add_error("medicines", "Add at least one medicine.")
+        return cleaned_data
 
 
 class DoctorTreatmentForm(DoctorPatientFormMixin, StyledFormMixin, forms.ModelForm):
@@ -479,6 +509,14 @@ class DoctorExerciseForm(DoctorPatientFormMixin, StyledFormMixin, forms.ModelFor
     class Meta:
         model = ExerciseAssignment
         fields = ("patient", "exercise", "repetitions", "frequency")
+        widgets = {
+            "repetitions": forms.TextInput(
+                attrs={"placeholder": "For example: 10 reps × 2 sets"}
+            ),
+            "frequency": forms.TextInput(
+                attrs={"placeholder": "For example: Twice daily"}
+            ),
+        }
 
 
 class DoctorFollowUpForm(DoctorPatientFormMixin, StyledFormMixin, forms.ModelForm):
