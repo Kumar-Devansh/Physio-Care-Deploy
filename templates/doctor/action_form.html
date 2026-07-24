@@ -1,9 +1,55 @@
 {% extends 'base.html' %}
 {% block title %}{{ action_title }} - PhysioCare Doctor{% endblock %}
+
 {% block content %}
-<div class="page-heading"><div><a class="back-link" href="{% if form.patient.value %}{% url 'doctor_patient_detail' form.patient.value %}{% else %}{% url 'doctor_dashboard' %}{% endif %}"><i data-lucide="arrow-left"></i> {% if form.patient.value %}Patient timeline{% else %}Doctor workspace{% endif %}</a><span class="section-kicker">Clinical action</span><h1>{{ action_title }}</h1><p>{{ action_description }}</p></div></div>
-<div class="clinical-form-layout"><section class="panel clinical-form-panel"><div class="form-section-heading"><span class="section-icon"><i data-lucide="{{ action_icon }}"></i></span><div><h2>Care details</h2><p>Select a patient and complete the information below.</p></div></div><form method="post" enctype="multipart/form-data" class="form-stack spacious-form">{% csrf_token %}{% for field in form %}<div class="form-group {% if field.name == 'exercise' %}repeatable-exercise-group{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.name == 'exercise' %}<div class="repeatable-exercises" data-repeatable-exercises></div><button class="btn btn-secondary btn-sm" type="button" data-add-exercise><i data-lucide="plus"></i> Add another exercise</button><small class="help-text">Add as many exercises as needed; they will share the repetitions and frequency below.</small>{% elif field.name == 'medicines' %}<button class="btn btn-secondary btn-sm" type="button" data-add-medicine><i data-lucide="plus"></i> Add another medicine line</button><small class="help-text">Each medicine or recommendation is included in the printable prescription.</small>{% endif %}{% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>{% endfor %}<div class="form-actions"><span><i data-lucide="shield-check"></i> The patient will be notified securely.</span><button class="btn btn-primary" type="submit">Save and notify patient <i data-lucide="arrow-right"></i></button></div></form></section><aside class="panel clinical-form-aside"><span class="aside-icon"><i data-lucide="badge-check"></i></span><h2>Clinical safety</h2><ul class="check-list"><li><i data-lucide="check"></i> Confirm the correct patient</li><li><i data-lucide="check"></i> Use clear, patient-friendly instructions</li><li><i data-lucide="check"></i> Include review dates when relevant</li><li><i data-lucide="check"></i> All actions are added to the timeline</li></ul><a class="btn btn-secondary btn-block" href="{% url 'doctor_dashboard' %}#patients">Review patient list</a></aside></div>
+<div class="page-heading">
+  <div>
+    <a class="back-link" href="{% if form.patient.value %}{% url 'doctor_patient_detail' form.patient.value %}{% else %}{% url 'doctor_dashboard' %}{% endif %}"><i data-lucide="arrow-left"></i> {% if form.patient.value %}Patient timeline{% else %}Doctor workspace{% endif %}</a>
+    <span class="section-kicker">Clinical action</span>
+    <h1>{{ action_title }}</h1>
+    <p>{{ action_description }}</p>
+  </div>
+</div>
+
+<div class="clinical-form-layout">
+  <section class="panel clinical-form-panel">
+    <div class="form-section-heading"><span class="section-icon"><i data-lucide="{{ action_icon }}"></i></span><div><h2>Care details</h2><p>Select a patient and complete the information below.</p></div></div>
+    <form method="post" enctype="multipart/form-data" class="form-stack spacious-form">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group{% if field.name == 'medicines' %} prescription-medicines{% endif %}{% if field.name == 'exercise' %} exercise-selector-group{% endif %}">
+          {% if field.name == 'medicines' %}
+            {{ field }}
+            <label>Medicines</label>
+            <p class="help-text">Enter each medicine, then choose how often it is taken and the number of days.</p>
+            <div class="medicine-list" data-medicine-list>
+              <div class="medicine-row">
+                <div><label for="id_medicine_name_0">Medicine</label><input id="id_medicine_name_0" class="form-control" name="medicine_name" type="text" placeholder="Medicine name and dosage" required></div>
+                <div><label for="id_medicine_times_0">Times / day</label><input id="id_medicine_times_0" class="form-control" name="medicine_times_per_day" type="number" min="1" max="12" value="1" required></div>
+                <div><label for="id_medicine_days_0">Days</label><input id="id_medicine_days_0" class="form-control" name="medicine_duration_days" type="number" min="1" max="365" value="1" required></div>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="button" data-add-medicine><i data-lucide="plus"></i> Add medicine</button>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.name == 'exercise' %}
+              <div class="repeatable-exercises" data-repeatable-exercises></div>
+              <button class="btn btn-secondary btn-sm" type="button" data-add-exercise><i data-lucide="plus"></i> Add another exercise</button>
+              <small class="help-text">Use the button to select more exercises with the same repetitions and frequency.</small>
+            {% endif %}
+            {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+          {% endif %}
+          {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="form-actions"><span><i data-lucide="shield-check"></i> The patient will be notified securely.</span><button class="btn btn-primary" type="submit">Save and notify patient <i data-lucide="arrow-right"></i></button></div>
+    </form>
+  </section>
+  <aside class="panel clinical-form-aside"><span class="aside-icon"><i data-lucide="badge-check"></i></span><h2>Clinical safety</h2><ul class="check-list"><li><i data-lucide="check"></i> Confirm the correct patient</li><li><i data-lucide="check"></i> Use clear, patient-friendly instructions</li><li><i data-lucide="check"></i> Include review dates when relevant</li><li><i data-lucide="check"></i> All actions are added to the timeline</li></ul><a class="btn btn-secondary btn-block" href="{% url 'doctor_dashboard' %}#patients">Review patient list</a></aside>
+</div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -12,35 +58,38 @@ document.addEventListener("DOMContentLoaded", function () {
   var addExercise = document.querySelector("[data-add-exercise]");
   if (exercise && exerciseList && addExercise) {
     addExercise.addEventListener("click", function () {
-      var copy = exercise.cloneNode(true);
       var row = document.createElement("div");
       var label = document.createElement("label");
+      var copy = document.createElement("select");
       var remove = document.createElement("button");
+      var index = exerciseList.children.length + 1;
       copy.name = "extra_exercise";
-      copy.id = "id_extra_exercise_" + exerciseList.children.length;
+      copy.id = "id_extra_exercise_" + index;
+      copy.className = "form-control";
+      copy.innerHTML = exercise.innerHTML;
       copy.value = "";
-      copy.removeAttribute("required");
-      copy.removeAttribute("aria-hidden");
-      copy.removeAttribute("tabindex");
-      copy.classList.remove("search-select-native");
-      row.className = "repeatable-exercise-row";
       label.htmlFor = copy.id;
       label.textContent = "Additional exercise";
       remove.className = "btn btn-link danger";
       remove.type = "button";
       remove.textContent = "Remove";
       remove.addEventListener("click", function () { row.remove(); });
+      row.className = "repeatable-exercise-row";
       row.append(label, copy, remove);
       exerciseList.appendChild(row);
     });
   }
-  var medicines = document.getElementById("id_medicines");
+
+  var medicineList = document.querySelector("[data-medicine-list]");
   var addMedicine = document.querySelector("[data-add-medicine]");
-  if (medicines && addMedicine) {
+  if (medicineList && addMedicine) {
     addMedicine.addEventListener("click", function () {
-      medicines.value += (medicines.value ? "\n" : "") + "Medicine - dosage and timing";
-      medicines.focus();
-      medicines.selectionStart = medicines.selectionEnd = medicines.value.length;
+      var index = medicineList.children.length;
+      var row = document.createElement("div");
+      row.className = "medicine-row";
+      row.innerHTML = '<div><label for="id_medicine_name_' + index + '">Medicine</label><input id="id_medicine_name_' + index + '" class="form-control" name="medicine_name" type="text" placeholder="Medicine name and dosage" required></div><div><label for="id_medicine_times_' + index + '">Times / day</label><input id="id_medicine_times_' + index + '" class="form-control" name="medicine_times_per_day" type="number" min="1" max="12" value="1" required></div><div><label for="id_medicine_days_' + index + '">Days</label><input id="id_medicine_days_' + index + '" class="form-control" name="medicine_duration_days" type="number" min="1" max="365" value="1" required></div><button class="btn btn-link danger medicine-remove" type="button">Remove</button>';
+      row.querySelector(".medicine-remove").addEventListener("click", function () { row.remove(); });
+      medicineList.appendChild(row);
     });
   }
 });

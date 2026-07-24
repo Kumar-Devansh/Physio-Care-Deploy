@@ -93,6 +93,8 @@
     .workspace-banner { align-items: flex-start; flex-direction: column; }
     .clinical-form-layout, .session-layout, .backup-layout { grid-template-columns: 1fr; }
     .clinical-form-aside, .management-form-panel { position: static; }
+    .medicine-row { grid-template-columns: 1fr 1fr; }
+    .medicine-row > div:first-child { grid-column: 1 / -1; }
     .patient-clinical-header { grid-template-columns: auto 1fr; }
     .patient-health-summary { grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); }
     .patient-action-bar { grid-template-columns: repeat(3, 1fr); }
