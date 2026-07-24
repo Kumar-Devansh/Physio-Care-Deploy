@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Video consultation — Coming soon{% endblock %}
+{% block content %}
+<div class="page-heading"><div><span class="section-kicker">Feature update</span><h1>Video consultation is coming soon</h1><p>We are still completing the secure calling system and clinical safeguards.</p></div></div>
+<section class="panel empty-state roomy">
+    <span class="empty-illustration"><i data-lucide="construction"></i></span>
+    <span class="status status-pending"><i></i> Work in progress</span>
+    <h2>Online calls are not available yet</h2>
+    <p>For now, please book an in-clinic appointment or contact reception. We will enable video appointments only after camera, audio, privacy, and connection testing is complete.</p>
+    {% if appointment %}<div class="chat-notice"><i data-lucide="circle-alert"></i> You have an existing video appointment on {{ appointment.scheduled_at|date:"d M Y, g:i A" }}. Please contact reception so the clinic can arrange an alternative.</div>{% endif %}
+    <div class="button-row">
+        <a class="btn btn-primary" href="{% url 'book_appointment' %}"><i data-lucide="calendar-plus"></i> Book in-clinic appointment</a>
+        <a class="btn btn-secondary" href="tel:+918001234567"><i data-lucide="phone"></i> Call reception</a>
+    </div>
+</section>
+{% endblock %}
