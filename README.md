@@ -106,13 +106,17 @@ python manage.py seed_demo
 
 Open `http://127.0.0.1:8001/`. The script runs migrations, the web application, and the appointment-reminder worker together. Pass a different unused port if needed.
 
-Alternatively, after completing `.env`, start the production-style containers with one command:
+For a single-server test deployment, the included Compose file starts PostgreSQL,
+the web application, and the appointment-reminder worker together. Copy
+`.env.example` to `.env`, replace all placeholder secrets and host names, then run:
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
-Then open `http://127.0.0.1:8000/` (or set `PORT` in your terminal for a different host port).
+Then open `http://YOUR_SERVER_IP/`. The application is published on port `80` and
+Compose automatically connects it to its private PostgreSQL service; do not expose
+PostgreSQL port `5432` publicly.
 
 Demo accounts (all use password `Care@123`):
 
