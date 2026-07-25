@@ -34,7 +34,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./deploy/nginx/physiocare.compose.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/nginx/physiocare.conf:/etc/nginx/conf.d/default.conf:ro
       - staticfiles:/srv/physiocare/staticfiles:ro
     depends_on:
       - web
