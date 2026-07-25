@@ -21,13 +21,23 @@ services:
       # Use the PostgreSQL service defined above. This overrides any external
       # DATABASE_URL in .env when the project is started with Compose.
       DATABASE_URL: postgresql://physiocare:${POSTGRES_PASSWORD}@db:5432/physiocare?sslmode=disable
-    ports:
-      - "80:8000"
     volumes:
       - private_media:/srv/physiocare/media
+      - staticfiles:/srv/physiocare/staticfiles
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/physiocare.compose.conf:/etc/nginx/conf.d/default.conf:ro
+      - staticfiles:/srv/physiocare/staticfiles:ro
+    depends_on:
+      - web
     restart: unless-stopped
 
   reminders:
@@ -46,4 +56,5 @@ services:
 
 volumes:
   private_media:
+  staticfiles:
   postgres_data:

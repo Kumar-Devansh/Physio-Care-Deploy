@@ -114,9 +114,10 @@ the web application, and the appointment-reminder worker together. Copy
 docker compose up -d --build
 ```
 
-Then open `http://YOUR_SERVER_IP/`. The application is published on port `80` and
-Compose automatically connects it to its private PostgreSQL service; do not expose
-PostgreSQL port `5432` publicly.
+Then open `http://YOUR_SERVER_IP/`. Nginx publishes the application on port `80`,
+serves its collected CSS and JavaScript files, and proxies application requests to
+Django. Compose automatically connects Django to its private PostgreSQL service;
+do not expose PostgreSQL port `5432` publicly.
 
 Demo accounts (all use password `Care@123`):
 
