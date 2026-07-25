@@ -17,8 +17,12 @@ services:
   web:
     build: .
     env_file: .env
+    environment:
+      # Use the PostgreSQL service defined above. This overrides any external
+      # DATABASE_URL in .env when the project is started with Compose.
+      DATABASE_URL: postgresql://physiocare:${POSTGRES_PASSWORD}@db:5432/physiocare?sslmode=disable
     ports:
-      - "127.0.0.1:8000:8000"
+      - "80:8000"
     volumes:
       - private_media:/srv/physiocare/media
     depends_on:
@@ -29,6 +33,8 @@ services:
   reminders:
     build: .
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://physiocare:${POSTGRES_PASSWORD}@db:5432/physiocare?sslmode=disable
     entrypoint: []
     command: ["python", "manage.py", "send_appointment_reminders", "--watch"]
     depends_on:
